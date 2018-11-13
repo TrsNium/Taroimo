@@ -23,31 +23,29 @@ let buf =  read_whole_channel chan;;
 
 Printf.printf "%s"  buf;;
 
-let regex_patterns = [|"{{\s*[a-zA-Z0-9]+\s*}}"; ""|];;
-let compiled_regex_patterns  patterns = 
-  let pattern_num = Array.length patterns in   
-  let compiled_lists = [||] in
-  let rec compile_pattern idx =  
-    if idx > 0 then
-      let new_idx = idx - 1 in
-      let content = Array.get patterns new_idx in 
-      let compiled = [|Str.regexp content|] in
-      compiled_lists = Array.append compiled_lists compiled;
-      
-      compile_pattern new_idx;
-  in
-  compile_pattern pattern_num;;
+type block = { _start : int; _content : string; _end : int};;
 
-let search_block document = 
-  let document_length = String.length document in 
-  let rec find_out_duplicate_char char start flag= 
+let search_literals document = 
+  let document_length: int = String.length document in 
+
+  let rec find_out_duplicate_char char start flag = 
     let nth_char = String.get document start in
-    if start == document_length then raise "Not Found!"
-    else if flag == True && nth_char == char then start - 1
-    else if flag == True && nth_char != char then find_out_duplicate_char char start+1 False
-    else find_out_duplicate_char char start+1 True
+    if flag == true && nth_char == char then (start - 1)
+    else if flag == true && nth_char != char then find_out_duplicate_char char (start+1) false 
+    else find_out_duplicate_char char (start+1) true
   in
 
-  let rec find_out_start_phrase document start_phrase_list = 
-    
+  let rec find_out_block literals start = 
+    try 
+      let start_idx = find_out_duplicate_char '{' start false  in
+      let end_idx = find_out_duplicate_char '}' (start+1) false  in
+      let content = String.sub document (start_idx+2) (end_idx-2) in
+
+      let element = { _start=start_idx; _content=content; _end=end_idx} in 
+      let new_literals = literals @ [element] in
+      find_out_block new_literals (end_idx+2);
+    with 
+      e -> literals;
   in
+
+  find_out_block [] 0;;
