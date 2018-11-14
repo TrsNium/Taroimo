@@ -57,4 +57,4 @@ let search_literals document =
   in
   find_out_block [] 0;;
 
-  search_literals documents;;
+search_literals documents;;
