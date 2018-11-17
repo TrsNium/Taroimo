@@ -58,30 +58,28 @@ let search_literals document =
 
 search_literals documents;;
 
-type variable_type = 
+type 'a variable_type = 
   | Nothing
-  | Variable of string
-  | String_variable of string
-  | Int_variable of int
-  | List_variable of 'variable_type list
+  | Variable of 'a 
+  | List_variable of 'a list
 
 type method_type = 
-  | Nothing
-  | Split of func
-  |
+  | Nothing of variable_type 
+  | Split of Str.regex * variable_type 
+  | Join of  string * variable_type;; (* String.concat "," ['test1, test2'] *)
+
+type compareter_ =  Eq | Vb | Nbt
+type if_of_struct = {_left_node: method_type ; conmpareter: Eq; right_node:method_type}
+type for_of_struct = {_left_node: method_type; right_node: method_type}
 
 type content_type = 
-  | Varibale of variable_type
-  | Method of string 
-  | String_type of 
-  | 
+  | Nothing of method_type
+  | If of if_of_struct
+  | For of for_of_struct
 
-
-type hoge = 
+type block_of_struct = 
   | Contents of string 
   | Child of hoge ;;
-
-type structs = {_content_type: content_type, }
 
 
 (* TODO: add evaluter module struct
