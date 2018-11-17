@@ -61,21 +61,24 @@ search_literals documents;;
 type 'a variable_type = 
   | Nothing
   | Variable of 'a 
-  | List_variable of 'a list
+  | List_variable of 'a variable_type list;;
 
 type method_type = 
   | Nothing of variable_type 
-  | Split of Str.regex * variable_type 
-  | Join of  string * variable_type;; (* String.concat "," ['test1, test2'] *)
+  | Split of Str.regex * (string variable_type)
+  | Join of  string * (string variable_type);; (* String.concat "," ['test1, test2'] *)
 
-type compareter_ =  Eq | Vb | Nbt
-type if_of_struct = {_left_node: method_type ; conmpareter: Eq; right_node:method_type}
-type for_of_struct = {_left_node: method_type; right_node: method_type}
+(* ==, != , >, <, >=, <= *)
+type comparative_operator =  Eq | NEq | Greater | Less | Greater_or_Eq | Less_or_Eq;;
+type if_of_struct = {left_node: method_type ; conmpareter: comparative_operator; right_node:method_type};;
+type for_of_struct = {outputs_node: method_type; inputs_node: method_type};;
 
 type content_type = 
   | Nothing of method_type
   | If of if_of_struct
   | For of for_of_struct
+  | Endif
+  | Endfor
 
 type block_of_struct = 
   | Contents of string 
