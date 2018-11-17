@@ -58,6 +58,32 @@ let search_literals document =
 
 search_literals documents;;
 
+type variable_type = 
+  | Nothing
+  | Variable of string
+  | String_variable of string
+  | Int_variable of int
+  | List_variable of 'variable_type list
+
+type method_type = 
+  | Nothing
+  | Split of func
+  |
+
+type content_type = 
+  | Varibale of variable_type
+  | Method of string 
+  | String_type of 
+  | 
+
+
+type hoge = 
+  | Contents of string 
+  | Child of hoge ;;
+
+type structs = {_content_type: content_type, }
+
+
 (* TODO: add evaluter module struct
   And this module include above module as child module ? *)
 module Evaluter = struct
