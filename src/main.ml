@@ -47,7 +47,6 @@ let search_literals document =
       (*      debug print *)
       Printf.printf "\n start=%i end=%i content = '%s' \n" start_idx end_idx content; 
       
-
       let element = { _start=start_idx; _content=content; _end=end_idx} in 
       let new_literals = literals @ [element] in
       find_out_block new_literals (end_idx+2);
@@ -59,36 +58,72 @@ let search_literals document =
 search_literals documents;;
 
 type 'a variable_type = 
-  | Nothing
   | Variable of 'a 
   | List_variable of 'a variable_type list;;
 
 type method_type = 
   | Nothing of variable_type 
   | Split of Str.regex * (string variable_type)
-  | Join of  string * (string variable_type);; (* String.concat "," ['test1, test2'] *)
+  | Join of  string * (string variable_type);;(* String.concat "," ['test1, test2'] *)
 
 (* ==, != , >, <, >=, <= *)
-type comparative_operator =  Eq | NEq | Greater | Less | Greater_or_Eq | Less_or_Eq;;
+type comparative_operator =  Eq | NEq | Greater | Less | Greater_or_Eq | Less_or_Eq ;;
 type if_of_struct = {left_node: method_type ; conmpareter: comparative_operator; right_node:method_type};;
-type for_of_struct = {outputs_node: method_type; inputs_node: method_type};;
+type for_of_struct = {outputs_node: variable_type; inputs_node: method_type};;
 
-type content_type = 
+type literal_type = 
   | Nothing of method_type
-  | If of if_of_struct
-  | For of for_of_struct
+  | If (*of if_of_struct*)
+  | For (*of for_of_struct*)
   | Endif
   | Endfor
+;;
 
 type block_of_struct = 
-  | Contents of string 
-  | Child of hoge ;;
-
+  | InBlock_Literals of literal_types list 
+  | Child_Block of block_of_struct list 
+  | InBlock_Variable_Names of (string, '_b) Hashtbl.t
+;;
 
 (* TODO: add evaluter module struct
   And this module include above module as child module ? *)
 module Evaluter = struct
-  let parse_block searched_literals = 
-    Printf.printf "%s" "hoge";
   
-end 
+  let set_variable variable = 
+    print_endline variable
+
+  let parse_element element = 
+    parse_chars 0 "feaofjewao"
+
+  (*
+  let parse_if_element elments =
+    printline elements;
+
+  let parse_for_elment elements = 
+    ();
+  *)
+
+  let parser_nothing elements = 
+    let element = String.concat " " elements in
+    ()
+  
+  let parse_block searched_literals = 
+    let detect_literal_type content = 
+      let words =  String.split_on_char ' ' content in
+      let elements = List.filter (fun x-> x <> "") words in 
+      let first_literal = elements.get 0 in 
+      let literal_type () = if first_literal = "if" then For
+                         else if first_literal = "for" then If
+                         else if first_literal = "endif" then Endif
+                         else if first_literal = "endfor" then Endfor
+                         else parse_nothing elements
+      in
+      literal_type ();
+    in
+    
+    
+    let rec add_block literal flag idx =
+      let content = searched_literals.get(idx).content in
+      let literal_type = detect_literal_type content in
+    in
+end
