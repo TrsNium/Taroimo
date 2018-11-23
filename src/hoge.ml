@@ -1,3 +1,5 @@
+open Printf;;
+
 let test_string = "split|",", [\"a\"; \"b\"]|";;
 
 
@@ -26,6 +28,9 @@ let extract_content content =
 
 let content_string = "fejwaofjweoaijfioewa";;
 let rec hoge bit_string args variables char_idx flag = 
+  if char_idx = String.length content_string then 
+    char_idx, args
+  else 
   let idx_char = String.get content_string char_idx in 
   let new_string =  String.concat "" [bit_string; String.make 1 idx_char] in
   (* toji kakko de idx to data wokaesu *) 
@@ -35,13 +40,14 @@ let rec hoge bit_string args variables char_idx flag =
     hoge "" [] [] (char_idx+1) false
   else if idx_char = '(' then
     if bit_string = "split" then
-      let (_char_idx, structs) = hoge "" [] [] (char_idx+1) false in
+      let (_char_idx, args) = hoge "" [] [] (char_idx+1) false in
       hoge "" [] [] (_char_idx+1) false
     else (* if hoge_string = "other" then*)
-      let (char_idx, structs) = hoge "" [] [] (char_idx+1) false in
-      hoge "" [] [] (char_idx+1) false 
+      let (_char_idx, args) = hoge "" [] [] (char_idx+1) false in
+      hoge "" [] [] (_char_idx+1) false 
   else if idx_char = ')' then
-    char_idx, args
+    let new_args = args @ variables in
+    char_idx, new_args
   else if idx_char = ',' then
     (* if flag ==true then means list else mean method arg *)
     if flag = true then
@@ -57,7 +63,34 @@ let rec hoge bit_string args variables char_idx flag =
       let new_args = args @ variables in
       hoge "" new_args [] (char_idx+1) false
   else
-    hoge new_string args variables (char_idx+1) flag
+    if char_idx+1 = String.length content_string then
+      let content = delete_white_space bit_string in
+      if String.length content >= 2 && String.get content 0 = '"' && String.get content ((String.length content)-1) = '"' then 
+        let nth_elm = extract_content bit_string in
+        let new_variables = variables @ [Variable nth_elm] in
+        let new_args = args @ new_variables in
+        hoge "" new_args new_variables (char_idx+1) true
+      else 
+        let new_variables = variables @ [Variable content] in
+        let new_args = args @ new_variables in
+        hoge "" new_args new_variables (char_idx+1) true
+    else
+      hoge new_string args variables (char_idx+1) flag;
+;;
+
+let (char_idx, args) = hoge "" [] [] 0 false
+let rec print lists idx = 
+  let nth_elm = List.nth lists idx in 
+  match nth_elm with
+  | Variable(x) -> print_endline x
+  | Lists (list) -> print list 0;
+  print lists (idx+1);
+;;
+
+try
+  print args 0
+with e->
+  ()
 ;;
 
  
