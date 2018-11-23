@@ -49,7 +49,6 @@ let rec hoge bit_string args variables char_idx flag =
     let new_args = args @ variables in
     char_idx, new_args
   else if idx_char = ',' then
-    (* if flag ==true then means list else mean method arg *)
     if flag = true then
       let content = delete_white_space bit_string in
       if String.length content >= 2 && String.get content 0 = '"' && String.get content ((String.length content)-1) = '"' then 
