@@ -63,16 +63,16 @@ let rec hoge bit_string args variables char_idx flag =
       hoge "" new_args [] (char_idx+1) false
   else
     if char_idx+1 = String.length content_string then
-      let content = delete_white_space bit_string in
+      let content = delete_white_space new_string in
       if String.length content >= 2 && String.get content 0 = '"' && String.get content ((String.length content)-1) = '"' then 
         let nth_elm = extract_content bit_string in
         let new_variables = variables @ [Variable nth_elm] in
         let new_args = args @ new_variables in
-        hoge "" new_args new_variables (char_idx+1) true
+        hoge new_string new_args new_variables (char_idx+1) true
       else 
         let new_variables = variables @ [Variable content] in
         let new_args = args @ new_variables in
-        hoge "" new_args new_variables (char_idx+1) true
+        hoge new_string new_args new_variables (char_idx+1) true
     else
       hoge new_string args variables (char_idx+1) flag;
 ;;
