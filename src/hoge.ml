@@ -22,8 +22,8 @@ let extract_content content =
   String.sub content (_start + 1)  (_end-_start-1) 
 ;;
 
-let content_string = "[\"fejwaofjweoai,jfioewa\",\"fjewofew\",\"fejwaojfoiewa\", fewaoifjeowajfo, jfewa]";;
-let content_string = "\"fejwaofjoewa fewa\""
+let content_string = "";;
+let content_string_ = "\"fejwaofjoewa fewa\""
 let test_string = "\"hgoefewjaofjeowiafoewadkajf\"  feawfewa";;
 
 let rec extract_string string idx flag=
@@ -44,8 +44,7 @@ let rec print_hoge lists idx =
   with e->()
 ;;
 
-let lists_add list var =
-  
+let lists_add list var =  
   let new_list = match list with 
    | Lists (list_) ->  Lists (list_ @ [Variable var])
   in 
@@ -67,7 +66,16 @@ let detect_string_type_or_other_and_return_nwe_variables _string _variables _dic
     new_variables
 ;;
 
-(*
+let detect_string_type_or_other_and_return_new_args _string _variables _dict = 
+  (* matched other type, reference from _dict *)
+  if String.length _string > 0 && String.get _string 0 <> '"' && String.get _string ((String.length _string)-1) <> '"' then 
+    (* TODO: add  reference from dict *)
+    _variables @ [Variable _string] 
+  else (* matched string_type *)
+    _variables @ [Variable _string]
+;;
+
+(* print test
 print_hoge [Lists [Variable "fejwaofewa"; Variable "fejowafjoewa"]] 0;;
 lists_add (Lists [Variable "fejwaofewa"; Variable "fejowafjoewa"]) "hoge";;
 
@@ -76,14 +84,8 @@ print_string "--------------------------------\n";;
 
 let rec hoge bit_string args variables char_idx array_flag = 
   if char_idx >= String.length content_string then 
-    let content = delete_white_space bit_string in
-    if String.length content > 0 && String.get content 0 <> '"' && String.get content ((String.length content)-1) <> '"' then 
-      let new_variables = variables @ [Variable content] in
-      let new_args = args @ new_variables in
-      char_idx, new_args
-    else 
-      let new_args = args @ variables in
-      char_idx, new_args
+    let new_variables = detect_string_type_or_other_and_return_new_args bit_string variables () in
+    char_idx, (args @ new_variables) 
   else 
   let idx_char = String.get content_string char_idx in 
   let new_string =  String.concat "" [bit_string; String.make 1 idx_char] in
@@ -129,6 +131,7 @@ let rec print lists idx =
   in
   print lists (idx+1);
 ;;
+
 try
   print args 0
 with e->
