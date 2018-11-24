@@ -6,23 +6,8 @@ type  variable =
   
 let replace l pos a  = List.mapi (fun i x -> if i = pos then a else x) l;;
 let delete_white_space l = String.map (fun x -> if x = ' ' then '\x00' else x) l;;
-let extract_content content =
-  let _length = String.length content in
-  let rec get_quote_idxs current_idx idx_lists = 
-    if current_idx = _length then idx_lists
-    else
-      let c_char = String.get content current_idx in
-      let new_idx_lists = idx_lists @ [current_idx] in 
-      if c_char = '"' then get_quote_idxs (current_idx+1) new_idx_lists
-      else get_quote_idxs (current_idx+1) new_idx_lists
-  in
-  let quote_idxs =  get_quote_idxs 0 [] in
-  let _start = List.nth quote_idxs 0 in
-  let _end = List.nth quote_idxs (List.length quote_idxs)-1 in 
-  String.sub content (_start + 1)  (_end-_start-1) 
-;;
 
-let content_string = "";;
+let content_string = "[\"fjoewajoifewa\", fjeoawfjoie]";;
 let content_string_ = "\"fejwaofjoewa fewa\""
 let test_string = "\"hgoefewjaofjeowiafoewadkajf\"  feawfewa";;
 
