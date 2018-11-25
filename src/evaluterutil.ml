@@ -1,6 +1,6 @@
 open Printf;;
 
-module EvaluterUtil = struct
+module Evaluterutil = struct
   type  variable =
     | Variable of string
     | Lists of variable list
@@ -150,7 +150,12 @@ let lists_add list var =
     | Variable(x) -> Printf.printf "variable = %s \n" x
     | Lists (list) -> print_string "List_variable \n"; print list 0
     in
-    print lists (idx+1);
+    print lists (idx+1)
 
-  let (idx, results) = parse_and_evalute "\hoge\"" "" [] [] 0 false ;;
+  (* test
+  let (idx, results) = parse_and_evalute "\" fewajofejio\"" "" [] [] 0 false
+  let _ = try 
+      print results 0
+  with e ->
+   ();*)
 end
