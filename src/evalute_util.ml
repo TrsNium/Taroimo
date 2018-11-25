@@ -8,33 +8,26 @@ module EvaluterUtil = struct
   let replace l pos a  = List.mapi (fun i x -> if i = pos then a else x) l
   let delete_white_space l = String.map (fun x -> if x = ' ' then '\x00' else x) l
 
-  let content_string_ = "[\"fjoewajoifewa\", \"fjeoawfjoie\"]"
-  let content_string_ = "[\"fjoewajoifewa\", fjeoawfjoie]"
-  let content_string_ = "\"fejwaofjoewa fewa\""
-  let content_string_ = "join(\",\", [fewa, fewa])"
-
   let rec extract_string string idx flag=
     let nth_char = String.get string idx in
     if nth_char = '"' && flag = false then extract_string string (idx+1) true
     else if nth_char = '"' && flag = true then idx
     else extract_string string (idx+1) flag
 
-  let rec print_hoge lists idx =
+  let rec print_variable_test lists idx =
     try
       let nth_elm = List.nth lists idx in 
       let _ = match nth_elm with
       | Variable(x) -> print_int idx; Printf.printf "variable_test = %s \n" x;
-      | Lists (list_) -> print_string "List_variable_test \n"; print_hoge list_ 0;
+      | Lists (list_) -> print_string "List_variable_test \n"; print_variable_test list_ 0;
       in
-      print_hoge lists (idx+1);
+      print_variable_test lists (idx+1);
     with e->()
 
 
 (* print test
-print_hoge [Lists [Variable "fejwaofewa"; Variable "fejowafjoewa"]] 0;;
+print_variable_test [Lists [Variable "fejwaofewa"; Variable "fejowafjoewa"]] 0;;
 lists_add (Lists [Variable "fejwaofewa"; Variable "fejowafjoewa"]) "hoge";;
-
-print_string "--------------------------------\n";;
 *)
 
 let lists_add list var =  
@@ -110,7 +103,7 @@ let lists_add list var =
       Variable ""
 
 
-  let rec hoge original_content bit_string args variables char_idx array_flag = 
+  let rec parse_and_evalute original_content bit_string args variables char_idx array_flag = 
     if char_idx >= String.length original_content then 
       let new_variables = detect_quote_string_type_or_other_and_return_new_variables bit_string variables () in
       char_idx, (args @ new_variables)
@@ -119,37 +112,37 @@ let lists_add list var =
     let new_string =  String.concat "" [bit_string; String.make 1 idx_char] in
     (* toji kakko de idx to data wokaesu *) 
     if idx_char = '[' then
-      hoge original_content "" args (variables@[Lists []]) (char_idx+1)true
+      parse_and_evalute original_content "" args (variables@[Lists []]) (char_idx+1)true
     else if idx_char = ']' then
       let new_variables = detect_string_type_or_other_and_return_nwe_variables bit_string variables () in
-      hoge original_content "" args new_variables (char_idx+1) array_flag
+      parse_and_evalute original_content "" args new_variables (char_idx+1) array_flag
     else if idx_char = '(' then
       (* bit_string means method_name*)  
-      let (_char_idx, _args) = hoge original_content "" [] [] (char_idx+1) false in
+      let (_char_idx, _args) = parse_and_evalute original_content "" [] [] (char_idx+1) false in
       let results = evalute_function bit_string _args in 
-      hoge original_content "" (args@[results]) [] (_char_idx+1) false
+      parse_and_evalute original_content "" (args@[results]) [] (_char_idx+1) false
     else if idx_char = ')' then
       let new_args = args @ variables in
       char_idx, new_args
     else if idx_char = ',' then
       if array_flag = true then
         let new_variables = detect_string_type_or_other_and_return_nwe_variables bit_string variables () in
-        hoge  original_content "" args new_variables (char_idx+1) array_flag
+        parse_and_evalute original_content "" args new_variables (char_idx+1) array_flag
       else
         let new_args = args @ variables in
-        hoge original_content "" new_args [] (char_idx+1) array_flag
+        parse_and_evalute original_content "" new_args [] (char_idx+1) array_flag
     else if idx_char = '"' then 
       let end_quote_idx =  extract_string original_content char_idx false in
       let new_bit_string = String.sub original_content (char_idx) (end_quote_idx-char_idx+1)in
       if array_flag = true then
-        hoge original_content new_bit_string args variables (end_quote_idx+1)  array_flag
+        parse_and_evalute original_content new_bit_string args variables (end_quote_idx+1)  array_flag
       else
         let new_variables = detect_quote_string_type_or_other_and_return_new_variables new_bit_string variables () in 
-        hoge original_content "" args new_variables (end_quote_idx+1)  array_flag
+        parse_and_evalute original_content "" args new_variables (end_quote_idx+1)  array_flag
     else if idx_char = ' ' || idx_char = '\x00' then
-      hoge original_content bit_string args variables (char_idx+1) array_flag
+      parse_and_evalute original_content bit_string args variables (char_idx+1) array_flag
     else
-      hoge original_content new_string args variables (char_idx+1) array_flag
+      parse_and_evalute original_content new_string args variables (char_idx+1) array_flag
 
   let rec print lists idx = 
     let nth_elm = List.nth lists idx in 
