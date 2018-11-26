@@ -144,7 +144,6 @@ let lists_add list var =
       if array_flag = true then
         parse_and_evalute original_content new_bit_string args variables (end_quote_idx+1)  array_flag
       else
-        let _ = print_string "not_array" in 
         let new_variables = detect_quote_string_type_or_other_and_return_new_variables new_bit_string variables () in 
         parse_and_evalute original_content "" args new_variables (end_quote_idx+1)  array_flag
     else if idx_char = ' ' || idx_char = '\x00' then
