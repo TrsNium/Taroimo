@@ -37,19 +37,6 @@ let lists_add list var =
   new_list
 
 
-  let detect_string_type_or_other_and_return_nwe_variables _string _variables _dict = 
-    if String.length _string >= 2 && String.get _string 0 = '"' && String.get _string ((String.length _string)-1) = '"' then
-      let _ = print_string "matched string\n" in
-      let last_elm = List.nth _variables ((List.length _variables)-1) in
-      let removed_last_elm = List.filter (fun x -> x != last_elm) _variables in 
-      let new_variables = removed_last_elm @ [lists_add last_elm _string] in
-      new_variables
-    else 
-      let _ = print_string "matched dict\n" in
-      let last_elm = List.nth _variables ((List.length _variables)-1) in
-      let removed_last_elm = List.filter (fun x -> x != last_elm) _variables in 
-      let new_variables = removed_last_elm @ [lists_add last_elm _string] in 
-      new_variables
 
   let remove_string_quote _string = 
     if String.length _string >= 2 && String.get _string 0 = '"' && String.get _string ((String.length _string)-1) = '"' then
@@ -58,6 +45,20 @@ let lists_add list var =
       removed_quote_string
     else 
       _string
+  
+  let detect_string_type_or_other_and_return_nwe_variables _string _variables _dict = 
+    if String.length _string >= 2 && String.get _string 0 = '"' && String.get _string ((String.length _string)-1) = '"' then
+      let _ = print_string "matched string\n" in
+      let last_elm = List.nth _variables ((List.length _variables)-1) in
+      let removed_last_elm = List.filter (fun x -> x != last_elm) _variables in 
+      let new_variables = removed_last_elm @ [lists_add last_elm (remove_string_quote _string)] in          
+      new_variables
+    else
+      let _ = print_string "matched dict\n" in
+      let last_elm = List.nth _variables ((List.length _variables)-1) in
+      let removed_last_elm = List.filter (fun x -> x != last_elm) _variables in
+      let new_variables = removed_last_elm @ [lists_add last_elm _string] in 
+      new_variables
   
   let detect_quote_string_type_or_other_and_return_new_variables _string _variables _dict = 
     (* matched other type, reference from _dict *)
@@ -141,9 +142,9 @@ let lists_add list var =
       let end_quote_idx =  extract_string original_content char_idx false in
       let new_bit_string = String.sub original_content (char_idx) (end_quote_idx-char_idx+1)in
       if array_flag = true then
-        let removed_quote = remove_string_quote new_bit_string in 
-        parse_and_evalute original_content removed_quote args variables (end_quote_idx+1)  array_flag
+        parse_and_evalute original_content new_bit_string args variables (end_quote_idx+1)  array_flag
       else
+        let _ = print_string "not_array" in 
         let new_variables = detect_quote_string_type_or_other_and_return_new_variables new_bit_string variables () in 
         parse_and_evalute original_content "" args new_variables (end_quote_idx+1)  array_flag
     else if idx_char = ' ' || idx_char = '\x00' then
