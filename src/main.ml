@@ -73,15 +73,25 @@ let rec variable_list_to_list reuslt_list original_list idx =
     in
     variable_list_to_list (reuslt_list@[nth_modified_elm]) original_list (idx+1)  
 ;;
-let literals = search_literals documents
+
 let evalute original_document hashtbl = 
   let literals = search_literals original_document in
   let rec expand_docuemnt  modified_docuemtns idx start= 
-    let nth_literal = List.nth literals idx in 
-    let (_, results) = Evaluterutil.parse_and_evalute nth_literal._content "" [] [] 0 false in
-    let modified_to_string_list = variable_list_to_list [] results 0 in
-    (*until not supported if and for, so only use 0 idx elm *)
-    let evaluted = List.nth modified_to_string_list 0 in
+    if idx = List.length literals then
+      let modified = modified_docuemtns ^ (String.sub original_document start (String.length original_document - start)) in
+      modified
+    else
+      let nth_literal = List.nth literals idx in 
+      let (_, results) = Evaluterutil.parse_and_evalute nth_literal._content "" [] [] 0 false in
+      let modified_to_string_list = variable_list_to_list [] results 0 in
+      (*until not supported if and for, so only use 0 idx elm *)
+      let evaluted = List.nth modified_to_string_list 0 in
 
+      let modified = modified_docuemtns ^ String.sub original_document start (nth_literal._start - start) ^ evaluted in
+      expand_docuemnt modified (idx+1) (nth_literal._end+2)
   in
+  expand_docuemnt "" 0 0
 ;;
+
+let evaluted = evalute documents ();;
+print_string evaluted
