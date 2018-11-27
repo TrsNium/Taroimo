@@ -158,11 +158,4 @@ let lists_add list var =
     | Lists (list) -> print_string "List_variable \n"; print list 0
     in
     print lists (idx+1)
-
-  (* test
-  let (idx, results) = parse_and_evalute "\" fewajofejio\"" "" [] [] 0 false
-  let _ = try 
-      print results 0
-  with e ->
-   ();*)
 end
